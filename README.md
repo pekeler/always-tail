@@ -26,7 +26,7 @@ if (!fs.existsSync(filename)) fs.writeFileSync(filename, "");
 
 var tail = new Tail(filename, '\n');
 
-tail.on('line', function(data) {
+tail.on('line', function(data, nextPosition) {
   console.log("got line:", data);
 });
 

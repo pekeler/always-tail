@@ -8,7 +8,7 @@ if (!fs.existsSync()) fs.writeFileSync(filename, "");
 // var t = new Tail(filename, '\n', { start: 0,  interval: 3000 });
 var t = new Tail(filename)
 
-t.on('line', function(data) {
+t.on('line', function(data, nextPosition) {
   console.log("line:", data);
 })
 

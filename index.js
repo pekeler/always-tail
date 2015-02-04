@@ -55,13 +55,13 @@ Tail = (function(_super) {
 
         debug("reading:", block.fd, size, start);
         fs.read(block.fd, buffer, 0, size, start, function(err, bytesRead, buff) {
-          var chunk, parts, _i, _len, _results;
+          var chunk, parts, _i, _len, _results, position;
 
           if (err) { return self.emit('error', err); };
 
           if (bytesRead == 0) { return next() };
 
-          self.bookmarks[block.fd] += bytesRead;
+          nextPosition = self.bookmarks[block.fd];
           buff = buff.toString("utf-8");
           self.buffer += buff;
           parts = self.buffer.split(self.separator);
@@ -70,8 +70,10 @@ Tail = (function(_super) {
           _results = [];
           for (_i = 0, _len = parts.length; _i < _len; _i++) {
             chunk = parts[_i];
-            _results.push(self.emit("line", chunk));
+            nextPosition += (Buffer.byteLength(chunk, 'utf-8') + self.separatorLength);
+            _results.push(self.emit("line", chunk, nextPosition));
           }
+          self.bookmarks[block.fd] += bytesRead;
           next();
         });
       });
@@ -103,6 +105,7 @@ Tail = (function(_super) {
 
     this.filename = filename;
     this.separator = separator != null ? separator : '\n';
+    this.separatorLength = Buffer.byteLength(self.separator, 'utf-8');
     this.options = options != null ? options : {};
     this.readBlock = __bind(self.readBlock, this);
     this.buffer = '';
